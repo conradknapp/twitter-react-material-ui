@@ -1,0 +1,17 @@
+.App {
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
+
+ul {
+  padding: 0;
+}
+
+ul div > * {
+  margin: 0 auto;
+}
