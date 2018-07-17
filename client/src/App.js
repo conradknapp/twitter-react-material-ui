@@ -1,12 +1,18 @@
 import React, { Component } from "react";
 import axios from "axios";
+
 import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import Icon from "@material-ui/core/Icon";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Chip from "@material-ui/core/Chip";
-import Avatar from "@material-ui/core/Avatar";
+import Typography from "@material-ui/core/Typography";
 import TagFacesIcon from "@material-ui/icons/TagFaces";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
 import "./App.css";
 
 import TweetList from "./components/TweetList";
@@ -14,6 +20,7 @@ import TweetList from "./components/TweetList";
 const initialState = {
   count: "",
   hashtags: "",
+  resultType: "popular",
   tweets: [],
   errors: {},
   loading: null
@@ -32,8 +39,9 @@ class App extends Component {
     event.preventDefault();
     try {
       this.setState({ loading: true });
-      const { data: tweets } = await axios.post("/api/search", this.state);
-      // this.clearState();
+      axios.post("http://localhost:4000/search", this.state);
+      const { data: tweets } = await axios.post("/search", this.state);
+      this.clearState();
       this.setState({
         tweets,
         errors: {},
@@ -57,17 +65,17 @@ class App extends Component {
     ));
 
   // prettier-ignore
-  countTweets = ({ length }) => <p>{length} tweet{length > 1 ? "s" : ""} found</p>;
+  countTweets = ({ length }) => <p><strong>{length}</strong> tweet{length > 1 ? "s" : ""} found</p>;
 
   clearState = () => this.setState({ ...initialState });
 
   render() {
-    const { count, hashtags, tweets, errors, loading } = this.state;
+    const { count, hashtags, tweets, errors, loading, resultType } = this.state;
 
     return (
       <div className="App">
-        <h1>Twitter</h1>
-        <form className="form" onSubmit={this.handleSubmit}>
+        <Typography variant="display3">Search Twitter</Typography>
+        <form className="form" action="POST" onSubmit={this.handleSubmit}>
           <TextField
             label="Input Hashtags"
             placeholder="i.e. brexit"
@@ -83,6 +91,19 @@ class App extends Component {
             onChange={this.handleChange}
             value={count}
           />
+          <FormControl>
+            <InputLabel htmlFor="resultType">Tweet Type</InputLabel>
+            <Select
+              value={resultType}
+              onChange={this.handleChange}
+              name="resultType"
+            >
+              <MenuItem value={"recent"}>Recent</MenuItem>
+              <MenuItem value={"popular"}>Popular</MenuItem>
+              <MenuItem value={"mixed"}>Mixed</MenuItem>
+            </Select>
+            <FormHelperText>Default value: Popular</FormHelperText>
+          </FormControl>
           <Button variant="outlined" color="primary" type="submit">
             <Icon>search</Icon>
             Find me

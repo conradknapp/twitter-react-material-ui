@@ -13,7 +13,7 @@ const validateSearchInput = ({ count, hashtags }) => {
   }
 
   if (isEmpty(count)) {
-    errors.count = "Must indicate the number of tweets should be displayed";
+    errors.count = "Select number of tweets to display";
   }
 
   return {
