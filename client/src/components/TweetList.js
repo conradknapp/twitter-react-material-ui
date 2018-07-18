@@ -6,8 +6,8 @@ const TweetList = ({ tweets, handlePauseStream, handleResumeStream }) => (
     {tweets.map((tweet, i) => (
       <Tweet
         key={i}
-        handleResumeStream={handleResumeStream}
         handlePauseStream={handlePauseStream}
+        handleResumeStream={handleResumeStream}
         {...tweet}
       />
     ))}

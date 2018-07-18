@@ -131,4 +131,12 @@ module.exports = (app, io) => {
     streamFunc.destroy();
     res.json({ destroyed: true });
   });
+
+  app.post("/favorite", (req, res) => {
+    axios
+      .post(
+        `https://api.twitter.com/1.1/favorites/create.json?id=243138128959913986`
+      )
+      .then(res => console.log(res));
+  });
 };

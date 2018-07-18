@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -13,20 +14,20 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 //prettier-ignore
 class Tweet extends React.Component {
-  state = {
-    paused: false
-  };
+  handleFavorite = async () => {
+    await axios.post('/favorite', { data: this.props._id });
+  }
 
   render() {
     const { text, user, name, profile_image_url, created_at, handlePauseStream, handleResumeStream } = this.props;
-    console.log(this.props);
+
     return (
-      <li>
-        <Card
-          onMouseEnter={handlePauseStream}
-          onMouseLeave={handleResumeStream}
-          style={{ maxWidth: 400, margin: '0 auto' }}
-        >
+      <li
+      style={{ maxWidth: 400, margin: '0 auto' }}
+      onMouseEnter={handlePauseStream}
+      onMouseLeave={handleResumeStream}
+      >
+        <Card>
         <CardHeader
           avatar={<Avatar src={profile_image_url || user.profile_image_url} />}
           action={
@@ -34,6 +35,7 @@ class Tweet extends React.Component {
               <MoreVertIcon />
             </IconButton>
           }
+
           title={name || user.name}
           subheader={created_at}
         />
@@ -43,7 +45,7 @@ class Tweet extends React.Component {
           </Typography>
         </CardContent>
         <CardActions disableActionSpacing>
-          <IconButton aria-label="Add to favorites">
+          <IconButton aria-label="Add to favorites" onClick={this.handleFavorite}>
             <FavoriteIcon />
           </IconButton>
           <IconButton aria-label="Share">

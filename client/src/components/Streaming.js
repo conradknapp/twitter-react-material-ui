@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import io from "socket.io-client";
+
 import Button from "@material-ui/core/Button";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -18,10 +19,10 @@ class Streaming extends React.Component {
     tweets: [],
     hashtag: "",
     errors: {},
+    openSnackbar: false,
     loading: false,
     cachingTweets: false,
-    cachedTweets: [],
-    open: false
+    cachedTweets: []
   };
 
   componentDidMount() {
@@ -32,15 +33,20 @@ class Streaming extends React.Component {
         this.setState({ tweets: incomingTweets, loading: false });
       } else {
         let cachedTweets = [data, ...this.state.cachedTweets];
-        console.log(cachedTweets);
         this.setState({
           cachedTweets,
           loading: false
         });
         if (cachedTweets.length >= 5) {
-          this.setState({ open: true });
+          this.setState({ openSnackbar: true });
         }
       }
+    });
+
+    socket.on("disconnect", () => {
+      socket.off("tweet");
+      socket.removeAllListeners("tweet");
+      console.log("Socket Disconnected");
     });
   }
 
@@ -49,26 +55,28 @@ class Streaming extends React.Component {
     this.setState({ [name]: value });
   };
 
-  handleClose = () => this.setState({ open: false });
-
-  handleResumeStream = () => {
+  handlePauseStream = () => {
     console.log("not caching tweets!");
     this.setState({ cachingTweets: false });
   };
 
-  handlePauseStream = () => {
+  handleResumeStream = () => {
     setTimeout(() => {
       this.setState({ cachingTweets: true });
       console.log("caching tweets!");
     }, 2000);
   };
 
+  handleClose = () => this.setState({ openSnackbar: false });
+
   seeNewTweets = () => {
-    this.setState({
-      tweets: [...this.state.cachedTweets, ...this.state.tweets],
-      cachedTweets: [],
-      open: false
-    });
+    this.setState(
+      {
+        tweets: [...this.state.cachedTweets, ...this.state.tweets],
+        openSnackbar: false
+      },
+      () => this.setState({ cachedTweets: [] })
+    );
     window.scrollTo(0, 0);
   };
 
@@ -96,7 +104,7 @@ class Streaming extends React.Component {
   };
 
   render() {
-    const { hashtag, tweets, loading, cachedTweets, open } = this.state;
+    const { hashtag, tweets, loading, cachedTweets, openSnackbar } = this.state;
 
     return (
       <div className="App">
@@ -133,7 +141,7 @@ class Streaming extends React.Component {
             vertical: "bottom",
             horizontal: "center"
           }}
-          open={open}
+          open={openSnackbar}
           autoHideDuration={6000}
           onClose={this.handleClose}
           message={

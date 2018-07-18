@@ -22,40 +22,17 @@ a:link {
   text-decoration: none;
 }
 
-.example-enter {
+.fade-enter {
   opacity: 0.01;
 }
-
-.example-enter.example-enter-active {
+.fade-enter-active {
   opacity: 1;
   transition: opacity 500ms ease-in;
 }
-
-.example-leave {
+.fade-exit {
   opacity: 1;
 }
-
-.example-leave.example-leave-active {
+.fade-exit-active {
   opacity: 0.01;
-  transition: opacity 100ms ease-in;
-}
-
-.order-enter {
-  transform: translateX(-120%);
-  transition: 0.5s;
-  max-height: 0;
-  padding: 0 !important;
-}
-.order-enter.order-enter-active {
-  max-height: 60px;
-  transform: translateX(0);
-  padding: 2rem 0 !important;
-}
-.order-exit {
-  transition: 0.5s;
-  transform: translateX(0);
-}
-.order-exit.order-exit-active {
-  transform: translateX(120%);
-  padding: 0;
+  transition: opacity 500ms ease-in;
 }
