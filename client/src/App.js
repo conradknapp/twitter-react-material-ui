@@ -18,12 +18,12 @@ import "./App.css";
 import TweetList from "./components/TweetList";
 
 const initialState = {
-  count: "",
   hashtags: "",
+  count: "",
   resultType: "popular",
   tweets: [],
-  errors: {},
-  loading: null
+  loading: null,
+  errors: {}
 };
 
 class App extends Component {
@@ -37,9 +37,9 @@ class App extends Component {
   handleSubmit = async event => {
     event.persist();
     event.preventDefault();
+
     try {
       this.setState({ loading: true });
-      axios.post("http://localhost:4000/search", this.state);
       const { data: tweets } = await axios.post("/search", this.state);
       this.clearState();
       this.setState({
@@ -48,8 +48,7 @@ class App extends Component {
         loading: false
       });
     } catch (err) {
-      console.error("Error in Promise", err);
-      console.dir(err.response.data);
+      console.error("Error in Searching", err);
       this.setState({
         errors: { ...err.response.data },
         loading: false

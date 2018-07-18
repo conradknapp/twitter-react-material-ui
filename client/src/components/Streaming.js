@@ -2,6 +2,9 @@ import React from "react";
 import axios from "axios";
 import io from "socket.io-client";
 import Button from "@material-ui/core/Button";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Icon from "@material-ui/core/Icon";
@@ -10,21 +13,35 @@ import TweetList from "./TweetList";
 
 const socket = io("http://localhost:4000");
 
-class Streaming extends React.PureComponent {
+class Streaming extends React.Component {
   state = {
     tweets: [],
     hashtag: "",
     errors: {},
-    loading: false
+    loading: false,
+    cachingTweets: false,
+    cachedTweets: [],
+    open: false
   };
 
   componentDidMount() {
     socket.on("tweet", data => {
       this.setState({ loading: true });
-      let newList = [data].concat(this.state.tweets);
-      this.setState({ tweets: newList, loading: false });
+      if (!this.state.cachingTweets) {
+        let incomingTweets = [data, ...this.state.tweets];
+        this.setState({ tweets: incomingTweets, loading: false });
+      } else {
+        let cachedTweets = [data, ...this.state.cachedTweets];
+        console.log(cachedTweets);
+        this.setState({
+          cachedTweets,
+          loading: false
+        });
+        if (cachedTweets.length >= 5) {
+          this.setState({ open: true });
+        }
+      }
     });
-    console.log(this.state.tweets);
   }
 
   handleChange = ({ target }) => {
@@ -32,9 +49,27 @@ class Streaming extends React.PureComponent {
     this.setState({ [name]: value });
   };
 
-  handlePause = async event => {
-    event.preventDefault();
-    await axios.post("/pause");
+  handleClose = () => this.setState({ open: false });
+
+  handleResumeStream = () => {
+    console.log("not caching tweets!");
+    this.setState({ cachingTweets: false });
+  };
+
+  handlePauseStream = () => {
+    setTimeout(() => {
+      this.setState({ cachingTweets: true });
+      console.log("caching tweets!");
+    }, 2000);
+  };
+
+  seeNewTweets = () => {
+    this.setState({
+      tweets: [...this.state.cachedTweets, ...this.state.tweets],
+      cachedTweets: [],
+      open: false
+    });
+    window.scrollTo(0, 0);
   };
 
   handleSubmit = async event => {
@@ -42,10 +77,9 @@ class Streaming extends React.PureComponent {
     event.preventDefault();
     try {
       this.setState({ loading: true });
-      await axios.post("/streaming", this.state);
-      // this.clearState();
+      const { data: tweets } = await axios.post("/streaming", this.state);
       this.setState({
-        // tweets,
+        tweets,
         errors: {},
         loading: false
       });
@@ -62,7 +96,7 @@ class Streaming extends React.PureComponent {
   };
 
   render() {
-    const { hashtag, tweets, loading } = this.state;
+    const { hashtag, tweets, loading, cachedTweets, open } = this.state;
 
     return (
       <div className="App">
@@ -85,14 +119,37 @@ class Streaming extends React.PureComponent {
             Find me
           </Button>
         </form>
-        {tweets.length > 0 ? (
-          <Button variant="outlined" color="primary" onClick={this.handlePause}>
-            Pause
-          </Button>
+        {loading ? (
+          <LinearProgress />
         ) : (
-          ""
+          <TweetList
+            handlePauseStream={this.handlePauseStream}
+            handleResumeStream={this.handleResumeStream}
+            tweets={tweets}
+          />
         )}
-        {loading ? <LinearProgress /> : <TweetList tweets={tweets} />}
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center"
+          }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={this.handleClose}
+          message={
+            <span>
+              Stream paused. <strong>{cachedTweets.length} new tweets</strong>
+            </span>
+          }
+          action={[
+            <Button color="secondary" size="medium" onClick={this.seeNewTweets}>
+              Click to see new tweets
+            </Button>,
+            <IconButton key="close" color="inherit" onClick={this.handleClose}>
+              <CloseIcon />
+            </IconButton>
+          ]}
+        />
       </div>
     );
   }

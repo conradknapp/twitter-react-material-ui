@@ -93,6 +93,7 @@ module.exports = (app, io) => {
             name = item.user.name;
             screen_name = item.user.screen_name;
             profile_image_url = item.user.profile_image_url;
+            text = item.text;
           }
           return {
             _id: item.id,
@@ -123,9 +124,11 @@ module.exports = (app, io) => {
 
   app.post("/resume", (req, res) => {
     streamTweets(savedHashtag);
+    res.json({ resume: true });
   });
 
   app.post("/pause", (req, res) => {
     streamFunc.destroy();
+    res.json({ destroyed: true });
   });
 };

@@ -1,39 +1,59 @@
 import React from "react";
+
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
+import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
+import CardActions from "@material-ui/core/CardActions";
+import Avatar from "@material-ui/core/Avatar";
+import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import ShareIcon from "@material-ui/icons/Share";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 //prettier-ignore
-const Tweet = props => {
-  console.log(props);
-  return (
-    <div>
-      <Card>
-        <CardMedia
-          image={props.profile_image_url}
-          title="Profile Image"
+class Tweet extends React.Component {
+  state = {
+    paused: false
+  };
+
+  render() {
+    const { text, user, name, profile_image_url, created_at, handlePauseStream, handleResumeStream } = this.props;
+    console.log(this.props);
+    return (
+      <li>
+        <Card
+          onMouseEnter={handlePauseStream}
+          onMouseLeave={handleResumeStream}
+          style={{ maxWidth: 400, margin: '0 auto' }}
+        >
+        <CardHeader
+          avatar={<Avatar src={profile_image_url || user.profile_image_url} />}
+          action={
+            <IconButton>
+              <MoreVertIcon />
+            </IconButton>
+          }
+          title={name || user.name}
+          subheader={created_at}
         />
         <CardContent>
-          <Typography gutterBottom variant="headline" component="h2">
-            <strong>{props.name}</strong>
-          </Typography>
           <Typography component="p">
-            {props.text}
+            {text}
           </Typography>
         </CardContent>
-        <CardActions>
-          <Button size="small" color="primary">
-            Favorite Count {props.favorite_count}
-          </Button>
-          <Button size="small" color="primary">
-            Retweets {props.retweet_count}
-          </Button>
+        <CardActions disableActionSpacing>
+          <IconButton aria-label="Add to favorites">
+            <FavoriteIcon />
+          </IconButton>
+          <IconButton aria-label="Share">
+            <ShareIcon />
+          </IconButton>
         </CardActions>
       </Card>
-    </div>
-)};
+    </li>
+    )
+  }
+}
 
 export default Tweet;
